@@ -1,4 +1,4 @@
-# 实验3
+# 实验3 创建表及维护表
 ## 3.1 创表
 
 > 在数据库 jxsk中创建如下数据表
@@ -162,6 +162,8 @@ INSERT INTO c VALUES ('c1','程序设计',60,3,null),
 ('c5','高等数学',80,4,null);
 ```
 
+***
+
 ## 3.6复制表
 
 > 用 SQL命令再创建一个学生表 stu，结构同 S表
@@ -191,6 +193,8 @@ SHOW CREATE TABLE s;
 INSERT INTO stu (SELECT * FROM s); -- 把s表的数据内容也复制到stu
 ```
 
+***
+
 ## 3.7 删除表
 
 > 用 SQL命令删除学生表 stu
@@ -200,4 +204,223 @@ INSERT INTO stu (SELECT * FROM s); -- 把s表的数据内容也复制到stu
 ```mysql
 DROP TABLE stu; -- 删除stu
 ```
+
+***
+
+***
+
+# 实验4 表及数据操作
+
+## 4.1 更改表数据
+
+> 用命令实现以下操作：
+> 1)把学生“周武”的年龄改为 19，系别改为“信息”
+> 2)将教师“王平”的职称改为“副教授”
+> 3)删除你自已添加的一些数据行或删除周武和王平两行，注意：删除之前请先备份，以便出错后恢复。
+
+- ### SQL语句
+
+```mysql
+-- 4.1 修改表内数据 UPDATE 表名 SET 列名1=新值1，列名2=新值2，.. WHERE 筛选条件
+SET SQL_SAFE_UPDATES = 0; -- 关闭安全更新模式 确保关闭 才能进行修改
+```
+
+#### 4.1.1 把学生“周武”的年龄改为 19，系别改为“信息”
+
+```msyql
+UPDATE s SET birthday = '2002-12-01',dept = '信息' WHERE sn='周武';
+```
+
+#### 4.1.2 将教师“王平”的职称改为“副教授"
+
+```msysql
+UPDATE t SET prof = '副教授' WHERE tn = '王平';
+```
+
+#### 4.1.3 除表中数据 DELECT FROM 表 WHERE 条件
+
+```mysql
+-- 一旦删除数据，它就会永远消失。因此，在执行DELETE语句之前，应该先备份数据库，以防万一要找回删除过的数据。
+-- zeroac@zeroUbuntu:~$ mysqldump -u exam -p jxsk > ./Desktop/examDatabase/before04.sql
+DELETE FROM s WHERE sn = '周武';
+DELETE FROM t WHERE tn = '王平';
+```
+***
+## 4.2 添加表数据
+
+交互式操作，略，SQL插入数据知识点如下:
+
+```mysql
+-- 插单行
+INSERT INTO tableName(column1,column2...) 
+VALUES (value1,value2,...);
+
+-- 插入所有属性 可省略属性名
+INSERT INTO tableName VALUES (value1,value2,...);
+-- 插入多行
+INSERT INTO tableName(column1,column2...)
+VALUES (value1,value2,...),
+       (value1,value2,...),
+...;
+```
+
+***
+
+## 4.3 数据增删改练习1
+
+> 用 SQL命令实现以下操作：
+> 1） 向表 T中插入一个教师元组（t6，李红， 女， 30， 副教授,1300，2000， 英语）
+> 2） 将“英语”课程的任课教师号修改为“t6”
+> 3） 增加年龄字段 age，并计算并填充所有学生的 age字段（用 datediff(year,birthday,getdate()) 计算并填充 age字段）
+> 4） 再将所有学生的年龄增加 1岁
+> 5） 将“高等数学”课程不及格的成绩修改为 0分
+> 6） 将低于总平均分成绩的女同学的成绩提高 5%
+> 7） 将“张小明”同学的信息分别从基本表 sc和 s中删除（使用两个 DELETE语句）
+> 8） 从基本表 c中删除“张雪”老师的任课信息
+
+#### 4.3.1 向表 T中插入一个教师元组（t6，李红， 女， 30， 副教授,1300，2000， 英语）
+
+```mysql
+INSERT INTO t VALUES('t6','李红','女',30,'副教授',1300,2000,'英语');
+```
+
+#### 4.3.2 将“英语”课程的任课教师号修改为"t6"
+
+```mysql
+UPDATE tc SET tno = 't6' WHERE cno IN (SELECT cno FROM c WHERE cn = '英语');
+```
+
+#### 4.3.3 增加年龄字段 age，并计算并填充所有学生的 age字段
+
+```mysql
+ALTER TABLE s ADD COLUMN age TINYINT AFTER birthday;
+UPDATE s SET age = TIMESTAMPDIFF(YEAR, birthday, CURDATE()); 
+```
+
+#### 4.3.4 再将所有学生的年龄增加 1岁
+
+```mysql
+UPDATE s SET age = age + 1 ;
+```
+
+#### 4.3.5 将“高等数学”课程不及格的成绩修改为 0分
+
+```mysql
+INSERT INTO sc VALUES('s1','c5',59),('s2','c5',89),('s4','c5',22);-- 插入几个不及格的成绩
+UPDATE sc SET score = 0 WHERE 
+(score< 60 AND cno = (SELECT cno FROM c WHERE cn = '高等数学'));
+```
+
+#### 4.3.6 将低于总平均分成绩的女同学成绩提高5%  ！！！未完成
+
+```mysql
+-- 交互式 插入一些女同学 及其成绩
+SELECT cno,AVG(score)  FROM sc GROUP BY sc.cno; -- 获取各科的平均成绩
+SELECT s.sno,s.sn,s.sex,sc.cno,sc.score FROM s JOIN sc ON s.sno = sc.sno WHERE s.sex = '女'; -- 获取女生的各科成绩
+
+SELECT s.sno, s.sn, s.sex, sc.cno, sc.score, temp.avgsc 
+FROM s JOIN sc ON s.sno = sc.sno JOIN (SELECT cno,AVG(score) avgsc FROM sc GROUP BY sc.cno) temp ON sc.cno = temp.cno ; -- 获取各科成绩以及该科目的平均成绩
+
+SELECT s.sno, s.sn, s.sex, sc.cno, sc.score, temp.avgsc 
+FROM s JOIN sc ON s.sno = sc.sno JOIN (SELECT cno,AVG(score) avgsc FROM sc GROUP BY sc.cno) temp ON sc.cno = temp.cno 
+WHERE s.sex = '女' AND sc.score < temp.avgsc; -- 获取低于平均成绩的女生
+
+
+CREATE VIEW s_avgAS AS (SELECT s.sno, s.sn, s.sex, sc.cno, sc.score, temp.avgsc 
+FROM s JOIN sc ON s.sno = sc.sno JOIN (SELECT cno,AVG(score) avgsc FROM sc GROUP BY sc.cno) temp ON sc.cno = temp.cno 
+WHERE s.sex = '女' AND sc.score < temp.avgsc); -- 将低于平均成绩的女生创建视图
+
+SELECT * FROM s_avgAS; -- 使用视图 当表内的数据发生变化时 视图里的内容也会随之变化
+
+
+SELECT * FROM sc WHERE (sc.sno,sc.cno) IN (SELECT sno,cno FROM s_avgAS); -- 在sc表中找出低于平均成绩的人
+UPDATE sc SET score = 1.05*score WHERE sno IN (SELECT sno FROM s_avgAS) AND cno IN (SELECT cno FROM s_avgAS); -- 将低于总平均分成绩的女同学成绩提高5%
+```
+
+#### 4.3.7 将“张小明”同学的信息分别从基本表 sc和 s中删除
+
+```mysql
+DELETE FROM s WHERE sn = '张小明';
+DELETE FROM sc WHERE sno = 's3';
+```
+
+#### 4.3.8 从基本表 c中删除“张雪”老师的任课信息
+
+```mysql
+DELETE FROM c WHERE cno IN (SELECT tc.cno FROM  tc JOIN t USING(tno) WHERE tn = '张雪';
+```
+***
+
+## 4.4 数据增删改练习2
+
+> .用 SQL命令实现以下操作：
+> 1)为 tc表添加“Term”字段，表示此授课是针对哪一级学生的第几学期开课的，如：2018级第 5学期开课，则填写 20185
+> 2)将 term字段统一填写 20181（表示 2018级第 1期）。
+> 3)修改学生选课表 sc，添加 tno，term，grade字段。
+> 4)将 term字段统一填写 20181（表示 2018级第 1学期）。
+> 5按 score填充 grade,100~90为 A，80以上为 B，70分以上为 C，60分以上为 D，60分以下为 E。
+
+#### 4.4.1 为 tc表添加“Term”字段，表示此授课是针对哪一级学生的第几学期开课的，如：2018级第 5学期开课，则填写 20185
+
+```mysql
+ALTER TABLE tc ADD Term VARCHAR(10);
+
+-- 插入时发现数据类型错误 故而把tinyint改为varchar
+ALTER TABLE tc CHANGE COLUMN preriod preriod VARCHAR(10); 
+```
+
+#### 4.4.2 将 term字段统一填写 20181（表示 2018级第 1期）。
+
+```mysql
+UPDATE tc SET term = '20181';
+```
+
+#### 4.4.3  修改学生选课表 sc，添加 tno，term，grade字段。
+
+```mysql
+ALTER TABLE sc ADD tno VARCHAR(20),
+ADD term VARCHAR(10),
+ADD grade VARCHAR(20);
+```
+
+#### 4.4.4 将 term字段统一填写 20181（表示 2018级第 1期）。
+
+```mysql
+UPDATE sc SET term = '20181';
+```
+
+#### 4.4.5 按 score填充 grade,100~90为 A，80以上为 B，70分以上为 C，60分以上为 D，60分以下为 E
+
+##### step 1. 创建存储函数，根据分数返回等级
+
+```mysql
+-- 按 score填充 grade,100~90为 A，80以上为 B，70分以上为 C，60分以上为 D，60
+-- 分以下为 E。
+
+-- 首先定义一个存储函数 来显示输入分数 按照要求输出等级
+-- 以下如不设置会出错 具体参考 https://stackoverflow.com/questions/26015160/deterministic-no-sql-or-reads-sql-data-in-its-declaration-and-binary-logging-i
+SET GLOBAL log_bin_trust_function_creators = 1; 
+DELIMITER $$ -- 设置新的分隔符
+CREATE FUNCTION getGrade(score TINYINT UNSIGNED)
+RETURNS VARCHAR(1)
+BEGIN
+	IF score >= 90 THEN RETURN 'A';
+    ELSEIF score >= 80 THEN RETURN 'B';
+	ELSEIF score >= 70 THEN RETURN 'C';
+	ELSEIF score >= 60 THEN RETURN 'D';
+	ELSE RETURN 'E';
+    END IF;
+END$$
+DELIMITER ; -- 恢复分隔符
+
+--
+```
+
+##### step 2. 调用存储函数 填充grade 
+
+```mysql
+UPDATE sc SET grade = getGrade(score);
+```
+
+**拓展:若想每次插入成绩时 自动填充grade等级 则可以利用触发器机制**
 
