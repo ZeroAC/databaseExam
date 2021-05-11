@@ -8,7 +8,7 @@ SELECT COUNT(*) FROM s GROUP BY sex;
 -- 女同学平均年龄
 SELECT AVG(age) FROM s WHERE sex = '女';
 
-SELECT sn,age FROM s WHERE age > (SELECT AVG(age) FROM s WHERE sex = '女');
+SELECT sn,age FROM s WHERE sex = '男' AND age > (SELECT AVG(age) FROM s WHERE sex = '女');
 
 -- 1.5 查询所有学生选修的课程门数
 SELECT sno, COUNT(*) '选修门数' FROM sc GROUP BY sno;

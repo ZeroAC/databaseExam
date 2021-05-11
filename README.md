@@ -817,3 +817,157 @@ END
 
 ***
 
+# 实验七 统计查询
+
+> 用 SQL命令实现以下操作：
+> 1） 查询女同学的人数
+>
+> 2） 查询男同学的平均年龄
+>
+> 3） 查询男、女同学各有多少人
+>
+> 4） 查询年龄大于女同学平均年龄的男学生的姓名和年龄
+>
+> 5） 查询所有学生选修的课程门数
+>
+> 6） 查询每门课程的学生选修人数（只输出超过 10人的课程），要求输出课程号和课程名及选修人数，查询结果按人数降序排列，若人数相同，按课程号升序排列
+>
+> 7） 查询只选修了一门课程的学生学号和姓名
+>
+> 8） 查询至少选修了两门课程的学生学号
+>
+> 9） 查询至少讲授两门课程的教师姓名和其所在系
+>
+> 10）查询高等数学课程的平均分
+>
+> 11)查询每个学生的总分，要求输出学号和分数，并按分数由高到低排列，分数相同时按学号升序排列
+>
+> 12)查询各科成绩等级分布情况，即看每门课程 A等多少人、B等多少人...
+>
+> 13)统计各科成绩等级分布情况存入新表 statgrade，即看每门课程 A等多少人、B等多少人...
+>
+> 14)统计各科课程号、课程名、选课人数、平均分、最高分、最低分，并存入新表 statscore
+
+### 7.1 查询女同学的人数
+
+```mysql
+SELECT COUNT(*) FROM s WHERE sex = '女';
+```
+
+![image-20210511095056612](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095056612.png)
+
+### 7.2 查询男同学的平均年龄
+
+```mysql
+SELECT AVG(age) FROM s WHERE sex = '男';
+```
+
+![image-20210511095124026](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095124026.png)
+
+### 7.3 查询男、女同学各有多少人
+
+```mysql
+SELECT COUNT(*) FROM s GROUP BY sex;
+```
+
+![image-20210511095153310](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095153310.png)
+
+### 7.4 查询年龄大于女同学平均年龄的男学生的姓名和年龄
+
+```mysql
+-- 女同学平均年龄
+SELECT AVG(age) FROM s WHERE sex = '女';
+
+-- 在男同学中找大于上述年龄的
+SELECT sn,age FROM s WHERE sex = '男' AND age > (SELECT AVG(age) FROM s WHERE sex = '女');
+```
+
+![image-20210511095341972](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095341972.png)
+
+### 7.5 查询所有学生选修的课程门数
+
+```mysql
+SELECT sno, COUNT(*) '选修门数' FROM sc GROUP BY sno;
+```
+
+![image-20210511095427874](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095427874.png)
+
+### 7.6 查询每门课程的学生选修人数（只输出超过2人(10人的数据不好造)的课程），要求输出课程号和课程名及选修人数，查询结果按人数降序排列，若人数相同，按课程号升序排列
+
+```mysql
+SELECT cno,cn, COUNT(*) '选修人数' FROM sc JOIN c USING(cno) GROUP BY cno HAVING 选修人数 > 2 ORDER BY 选修人数 DESC,cno ASC;
+```
+
+![image-20210511095526003](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095526003.png)
+
+### 7.7 查询只选修了一门课程的学生学号和姓名
+
+```mysql
+SELECT s.sno,s.sn,COUNT(*) '选修门数' FROM s JOIN sc USING(sno) 
+GROUP BY sno HAVING 选修门数=1;
+```
+
+![image-20210511095605535](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095605535.png)
+
+### 7.8 查询至少选修了两门课程的学生学号
+
+```mysql
+SELECT s.sno,s.sn,COUNT(*) '选修门数' FROM s JOIN sc USING(sno) 
+GROUP BY sno HAVING 选修门数>=2;
+```
+
+![image-20210511095649891](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095649891.png)
+
+### 7.9 查询至少讲授两门课程的教师姓名和其所在系
+
+```mysql
+SELECT tno,t.tn,t.dept, COUNT(*) '讲授门数' FROM tc JOIN t USING(tno) 
+GROUP BY tno HAVING 讲授门数>=2;
+```
+
+![image-20210511095735623](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095735623.png)
+
+### 7.10 查询高等数学课程的平均分
+
+```mysql
+SELECT cno,c.cn,AVG(score) FROM sc JOIN c USING(cno)
+WHERE c.cn = '高等数学' GROUP BY cno;
+```
+
+![image-20210511095804234](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095804234.png)
+
+### 7.11 查询每个学生的总分，要求输出学号和分数，并按分数由高到低排列，分数相同时按学号升序排列
+
+```mysql
+SELECT sno,SUM(score) 总分 FROM sc 
+GROUP BY sno ORDER BY 总分 DESC, sno ASC; 
+```
+
+![image-20210511095838333](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095838333.png)
+
+### 7.12 查询各科成绩等级分布情况，即看每门课程 A等多少人、B等多少人
+
+```mysql
+SELECT cno,grade,COUNT(*) FROM sc GROUP BY cno,grade ORDER BY cno;
+```
+
+![image-20210511095921933](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095921933.png)
+
+### 7.13  统计各科成绩等级分布情况存入新表 statgrade，即看每门课程 A等多少人、B等多少人
+
+```mysql
+CREATE TABLE IF NOT EXISTS statgrade (SELECT cno,grade,COUNT(*) FROM sc GROUP BY cno,grade ORDER BY cno);
+SELECT * FROM statgrade;
+```
+
+![image-20210511095921933](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511095921933.png)
+
+### 7.14  统计各科课程号、课程名、选课人数、平均分、最高分、最低分，并存入新表 statscore
+
+```mysql
+CREATE TABLE IF NOT EXISTS statscore SELECT sc.cno,c.cn,COUNT(*),AVG(score),MAX(score),MIN(score) 
+FROM sc JOIN c USING(cno) GROUP BY cno;
+SELECT * FROM statscore;
+```
+
+![image-20210511100108896](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511100108896.png)
