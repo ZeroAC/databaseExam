@@ -424,3 +424,130 @@ UPDATE sc SET grade = getGrade(score);
 
 **拓展:若想每次插入成绩时 自动填充grade等级 则可以利用触发器机制**
 
+***
+
+***
+
+# 实验5 简单查询
+
+> 用 SQL命令实现以下操作：
+> 1） 查询计算机系的所有教师
+> 2） 查询所有女同学的姓名，年龄
+> 3） 查询计算机系教师开设的所有课程的课程号和课程名
+> 4） 查询年龄在 18~20岁（包括 18和 20）之间的所有学生的信息
+> 5） 查询年龄小于 20岁的所有男同学的学号和姓名
+> 6） 查询姓“李”的所有学生的姓名、年龄和性别
+> 7） 查询所有女同学所选课程的课程号
+> 8） 查询至少有一门成绩高于 90分的学生姓名和年龄
+> 9） 查询选修“微机原理”的所有学生的姓名和成绩
+> 10）试算所有“数据库”成绩统一增加 10%后（超过 100分按 100计算），全班平均分是多少？（注意：请不要修改原始成绩）
+> 11）试算所有“数据结构”成绩 60分以下的统一增加 10分后，仍有多少人不及格。
+
+### 5.1 查询计算机系的所有教师。
+
+```mysql
+SELECT * FROM t WHERE dept = '计算机';
+```
+
+![image-20210511085450587](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511085450587.png)
+
+### 5.2 查询所有女同学的姓名，年龄
+
+```mysql
+SELECT sn,age FROM s WHERE sex = '女';
+```
+
+![image-20210511085613263](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511085613263.png)
+
+### 5.3 查询计算机系教师开设的所有课程的课程号和课程名
+
+```mysql
+-- 1.查计算机系的老师有哪些
+SELECT tno FROM t WHERE dept = '计算机';
+
+-- 2.在这些老师中查他们教的课
+SELECT tc.tno,tc.cno, c.cn FROM tc JOIN c ON tc.cno = c.cno
+WHERE tc.tno IN (SELECT tno FROM t WHERE dept = '计算机');
+```
+
+![image-20210511085837627](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511085837627.png)
+
+### 5.4 查询年龄在 18~20岁之间的所有学生的信息
+
+```mysql
+-- 设置一些年龄
+UPDATE s SET age = 19 WHERE sno = 's5' or sno = 's6';
+-- 条件查询
+SELECT * FROM s WHERE age BETWEEN 18 AND 20;
+```
+
+![image-20210511090026003](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511090026003.png)
+
+### 5.5 查询年龄小于 20岁的所有男同学的学号和姓名
+
+```mysql
+SELECT sno, sn FROM s WHERE age < 20 AND sex = '男';
+```
+
+![image-20210511090213039](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511090213039.png)
+
+### 5.6 查询姓“李”的所有学生的姓名、年龄和性别
+
+```mysql
+SELECT sn,age,sex FROM s WHERE sn LIKE '李%';
+```
+
+![image-20210511090316506](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511090316506.png)
+
+### 5.7 查询所有女同学所选课程的课程号
+
+```mysql
+SELECT s.sn,s.sex,sc.cno FROM s JOIN sc ON sc.sno = s.sno
+WHERE s.sex = '女';
+```
+
+<img src="https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511090413043.png" alt="image-20210511090413043" style="zoom:80%;" />
+
+### 5.8 查询至少有一门成绩高于 90分的学生姓名和年龄
+
+```mysql
+SELECT s.sn,s.age,MAX(sc.score) FROM s JOIN sc ON s.sno = sc.sno
+GROUP BY sc.sno HAVING MAX(sc.score) > 90; 
+```
+
+![image-20210511090506764](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511090506764.png)
+
+### 5.9 查询选修“微机原理”的所有学生的姓名和成绩
+
+```mysql
+SELECT s.sn, sc.score FROM s JOIN sc ON s.sno = sc.sno
+WHERE sc.cno = (SELECT cno FROM c WHERE cn = '微机原理');
+```
+
+![image-20210511090601450](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511090601450.png)
+
+### 5.10 试算所有“数据库”成绩统一增加 10%后（超过 100分按 100计算），全班平均分是多少
+
+```mysql
+-- 查找数据库的课程编号
+SELECT cno FROM c WHERE cn = '数据库';
+-- 数据库的全班平均成绩
+SELECT dept,AVG(sc.score*1.1) FROM s JOIN sc ON s.sno = sc.sno WHERE sc.cno = (SELECT cno FROM c WHERE cn = '数据库')
+GROUP BY dept;
+```
+
+![image-20210511090734969](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511090734969.png)
+
+### 5.11 试算所有“数据结构”成绩 60分以下的统一增加 10分后，仍有多少人不及格。
+
+```mysql
+SELECT COUNT(*) '仍不及格人数' FROM c JOIN sc ON c.cno = sc.cno
+WHERE c.cn = '数据结构' AND sc.score+10 < 60;
+```
+
+![image-20210511090840139](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511090840139.png)
+
+***
+
+***
+

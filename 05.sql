@@ -50,7 +50,7 @@ SELECT cno FROM c WHERE cn = '数据库';
 SELECT dept,AVG(sc.score*1.1) FROM s JOIN sc ON s.sno = sc.sno WHERE sc.cno = (SELECT cno FROM c WHERE cn = '数据库')
 GROUP BY dept;
 
--- 1.11试 算所有“数据结构”成绩 60分以下的统一增加 10分后，仍有多少人不及格。
+-- 1.11试算所有“数据结构”成绩 60分以下的统一增加 10分后，仍有多少人不及格。
 -- 查询选修了数据结构这门课的学号和成绩
 SELECT COUNT(*) '仍不及格人数' FROM c JOIN sc ON c.cno = sc.cno
 WHERE c.cn = '数据结构' AND sc.score+10 < 60;

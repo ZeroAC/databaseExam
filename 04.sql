@@ -63,7 +63,7 @@ DELETE FROM s WHERE sn = '张小明';
 DELETE FROM sc WHERE sno = 's3';
 
 -- 从基本表 c中删除“张雪”老师的任课信息
-DELETE FROM t WHERE tn = '张雪';
+DELETE FROM c WHERE cno IN (SELECT tc.cno FROM  tc JOIN t USING(tno) WHERE tn = '张雪';
 
 -- 4.4 综合操作
 
@@ -77,11 +77,19 @@ CALL getFT('tc');
 ALTER TABLE tc CHANGE COLUMN preriod preriod VARCHAR(10); -- 插入时发现数据类型错误 故而把tinyint改为varchar
 UPDATE tc SET term = '20181';
 
+-- 4.4.3  修改学生选课表 sc，添加 tno，term，grade字段。
+
+
+ALTER TABLE sc ADD tno VARCHAR(20),
+ADD term VARCHAR(10),
+ADD grade VARCHAR(20);
+
+
 -- 按 score填充 grade,100~90为 A，80以上为 B，70分以上为 C，60分以上为 D，60
 -- 分以下为 E。
 
 -- 首先定义一个存储函数 来显示输入分数 按照要求输出等级
--- 如不设置会出错 具体参考 https://stackoverflow.com/questions/26015160/deterministic-no-sql-or-reads-sql-data-in-its-declaration-and-binary-logging-i
+-- 以下如不设置会出错 具体参考 https://stackoverflow.com/questions/26015160/deterministic-no-sql-or-reads-sql-data-in-its-declaration-and-binary-logging-i
 SET GLOBAL log_bin_trust_function_creators = 1; 
 DELIMITER $
 CREATE FUNCTION getGrade(score TINYINT UNSIGNED)
