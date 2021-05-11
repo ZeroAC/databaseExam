@@ -127,18 +127,21 @@ ALTER TABLE s DROP native, DROP dna; -- 拓展 删除多列
 ## 3.5 插入数据
 
 >输入下面这些数据，再输入一些自定义数据
+>
 >1)交互方式录入一些学生数据：
 >s1，赵亦， 女，1995-01-01，计算机
 >s2，钱尔， 男，1996-01-10，信息
 >s3，张小明,男，1995-12-10，信息
 >s4，李思， 男，1995-06-01，自动化
 >s5，周武， 男，1994-12-01，计算机
+>
 >2)用 SQL命令录入一些教师数据：
 >t5，张兰， 女， 39， 副教授,1300，2000， 信息
 >t4，张雪， 女， 51， 教授， 1600，3000， 自动化
 >t3，刘伟， 男， 30， 讲师， 900， 1200， 计算机
 >t2，王平， 男， 28， 教授， 1900，2200， 信息
 >t1，李力， 男， 47， 教授， 1500，3000， 计算机
+>
 >3)用命令录入一些课程数据：
 >c1，程序设计，60，3，null
 >c2，微机原理，60，3，c1
@@ -214,8 +217,11 @@ DROP TABLE stu; -- 删除stu
 ## 4.1 更改表数据
 
 > 用命令实现以下操作：
+>
 > 1)把学生“周武”的年龄改为 19，系别改为“信息”
+>
 > 2)将教师“王平”的职称改为“副教授”
+>
 > 3)删除你自已添加的一些数据行或删除周武和王平两行，注意：删除之前请先备份，以便出错后恢复。
 
 - ### SQL语句
@@ -269,13 +275,21 @@ VALUES (value1,value2,...),
 ## 4.3 数据增删改练习1
 
 > 用 SQL命令实现以下操作：
+>
 > 1） 向表 T中插入一个教师元组（t6，李红， 女， 30， 副教授,1300，2000， 英语）
+>
 > 2） 将“英语”课程的任课教师号修改为“t6”
+>
 > 3） 增加年龄字段 age，并计算并填充所有学生的 age字段（用 datediff(year,birthday,getdate()) 计算并填充 age字段）
+>
 > 4） 再将所有学生的年龄增加 1岁
+>
 > 5） 将“高等数学”课程不及格的成绩修改为 0分
+>
 > 6） 将低于总平均分成绩的女同学的成绩提高 5%
+>
 > 7） 将“张小明”同学的信息分别从基本表 sc和 s中删除（使用两个 DELETE语句）
+>
 > 8） 从基本表 c中删除“张雪”老师的任课信息
 
 #### 4.3.1 向表 T中插入一个教师元组（t6，李红， 女， 30， 副教授,1300，2000， 英语）
@@ -431,16 +445,27 @@ UPDATE sc SET grade = getGrade(score);
 # 实验5 简单查询
 
 > 用 SQL命令实现以下操作：
+>
 > 1） 查询计算机系的所有教师
+>
 > 2） 查询所有女同学的姓名，年龄
+>
 > 3） 查询计算机系教师开设的所有课程的课程号和课程名
+>
 > 4） 查询年龄在 18~20岁（包括 18和 20）之间的所有学生的信息
+>
 > 5） 查询年龄小于 20岁的所有男同学的学号和姓名
+>
 > 6） 查询姓“李”的所有学生的姓名、年龄和性别
+>
 > 7） 查询所有女同学所选课程的课程号
+>
 > 8） 查询至少有一门成绩高于 90分的学生姓名和年龄
+>
 > 9） 查询选修“微机原理”的所有学生的姓名和成绩
+>
 > 10）试算所有“数据库”成绩统一增加 10%后（超过 100分按 100计算），全班平均分是多少？（注意：请不要修改原始成绩）
+>
 > 11）试算所有“数据结构”成绩 60分以下的统一增加 10分后，仍有多少人不及格。
 
 ### 5.1 查询计算机系的所有教师。
@@ -546,6 +571,247 @@ WHERE c.cn = '数据结构' AND sc.score+10 < 60;
 ```
 
 ![image-20210511090840139](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511090840139.png)
+
+***
+
+***
+
+# 实验六 多表查询
+
+> 用 SQL命令实现以下操作：
+> 1） 查询至少选修课程号为“21”和“41”两门课程的学生的学号
+>
+> 2） 查询选修了“高等数学”或“普通物理”的学生姓名
+>
+> 3） 查询选修了王平老师所讲授所有课程的学生的学号和成绩
+>
+> 4） 查询未选修王老师所讲授任意课程的学生的学号和成绩
+>
+> 5） 查询选修了“计算机”系教师所讲授的课程的学生姓名和成绩
+>
+> 6） 查询学号比“张小明”同学大而年龄比他小的学生姓名
+>
+> 7） 查询年龄大于所有女同学年龄的男学生的姓名和年龄
+>
+> 8） 查询未选修“高等数学”的学生的学号和姓名
+>
+> 9） 查询不是计算机系教师所讲授的课程的课程名和课程号
+>
+> 10)查询未选修“21”号课程的学生的学号和姓名
+>
+> 11)从学生表和教师表可以了解到哪些院系名称
+>
+> 12)查询哪些学生所选的课程是由本院系的教师教的，列举学生姓名、课程名和教师名
+>
+> 13)如果在同一个班上课就认定为同学，请列举所有可能的同学关系，至少包含三列：学生姓名、同学姓名、共同课程名.
+>
+> 14)由于课程有上下承接关系，请列举课程先后关系，必须先上的在前，后上的在后，无承接关系的不列举
+
+### 6.1 查询至少选修课程号为“21”和“41”两门课程的学生的学号
+
+```mysql
+-- 选修了21和41的人的学号
+SELECT s1.sno FROM sc s1 JOIN sc s2 ON s1.sno = s2.sno
+WHERE s1.cno = '21' AND s2.cno = '41';
+```
+
+![image-20210511091452635](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511091452635.png)
+
+### 6.2 查询选修了“高等数学”或“普通物理”的学生姓名
+
+```mysql
+-- 1.先查找“高等数学”和“普通物理”的课程号
+SELECT * FROM c WHERE cn = '高等数学' OR cn = '普通物理';
+
+-- 2.根据上述课程号查学生信息
+SELECT s.sn,sc.cno FROM sc JOIN s ON sc.sno = s.sno
+WHERE sc.cno IN 
+(SELECT c.cno FROM c WHERE cn = '高等数学' OR cn = '普通物理');
+```
+
+![image-20210511091803616](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511091803616.png)
+
+### 6.3 查询选修了王平老师所讲授所有课程的学生的学号和成绩
+
+```mysql
+-- 查找王平老师所教的课的课程号
+SELECT tc.cno FROM t JOIN tc ON t.tno = tc.tno
+WHERE t.tn = '王平';
+
+-- 查找选修了该课程号的学生成绩
+SELECT sc.sno, sc.cno, sc.score FROM sc WHERE sc.cno IN (SELECT tc.cno FROM t JOIN tc ON t.tno = tc.tno WHERE t.tn = '王平') ;
+```
+
+![image-20210511091921902](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511091921902.png)
+
+### 6.4 查询未选修王老师所讲授任意课程的学生的学号和成绩
+
+```mysql
+-- 上题取反即可
+SELECT sc.sno, sc.cno, sc.score FROM sc WHERE sc.cno NOT IN (SELECT tc.cno FROM t JOIN tc ON t.tno = tc.tno WHERE t.tn = '王平');
+```
+
+<img src="https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511092027875.png" alt="image-20210511092027875" style="zoom:50%;" />
+
+### 6.5 查询选修了计算机系教师所讲授的课程的学生姓名和成绩
+
+```mysql
+-- 查询计算机系教师所讲授的课程号
+SELECT tc.cno FROM t JOIN tc ON t.tno = tc.tno
+WHERE t.dept = '计算机';
+
+-- 根据课程号查学生姓名和成绩
+SELECT s.sn,sc.cno,sc.score FROM s JOIN sc ON s.sno = sc.sno
+WHERE sc.cno IN (SELECT tc.cno FROM t JOIN tc ON t.tno = tc.tno
+WHERE t.dept = '计算机');
+```
+
+![image-20210511092134777](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511092134777.png)
+
+### 6.6 查询学号比“张小明”同学大而年龄比他小的学生姓名
+
+```mysql
+-- 通过自连接 把张小明和其它同学的信息比较 注意在另外一个表要排除自身
+SELECT s1.sn,s1.age,s2.sn,s2.age FROM s s1 JOIN s s2 ON s1.sn = '张小明' AND s2.sn <> '张小明' WHERE s2.sno > s1.sno AND s2.age < s1.age;
+```
+
+![image-20210511092134777](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511092134777.png)
+
+### 6.7 查询年龄大于所有女同学年龄的男学生的姓名和年龄
+
+```mysql
+SELECT * FROM s WHERE sex = '男' AND 
+age > (SELECT MAX(age) FROM s WHERE sex = '女'); 
+```
+
+![image-20210511092409698](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511092409698.png)
+
+### 6.8 查询未选修“高等数学”的学生的学号和姓名
+
+```mysql
+-- 选修了高等数学的学号
+SELECT sno FROM c JOIN sc USING(cno)
+WHERE c.cn = '高等数学';
+-- 在排除上述学号后的s表中查找
+SELECT sno, sn FROM s WHERE 
+sno NOT IN (SELECT sno FROM c JOIN sc USING(cno)
+WHERE c.cn = '高等数学');
+```
+
+![image-20210511092508810](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511092508810.png)
+
+### 6.9 查询不是计算机系教师所讲授的课程的课程名和课程号
+
+```mysql
+-- 查询计算机系老师讲的课程号
+SELECT tc.cno FROM t JOIN tc USING(tno)
+WHERE dept = '计算机';
+
+-- 排除上述课程号后查询即可
+SELECT cno, cn FROM c WHERE cno NOT IN(SELECT tc.cno FROM t JOIN tc USING(tno)
+WHERE dept = '计算机');
+```
+
+![image-20210511092508810](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511092508810.png)
+
+### 6.10 查询未选修“21”号课程的学生的学号和姓名
+
+```mysql
+-- 选修了21课的学生学号
+SELECT sno FROM sc WHERE sc.cno = '21';
+
+-- 排除上述学号即可 
+SELECT sno,sn FROM s WHERE 
+sno NOT IN (SELECT sno FROM sc WHERE sc.cno = '21');
+```
+
+![image-20210511093009745](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511093009745.png)
+
+### 6.11 从学生表和教师表可以了解到哪些院系名称
+
+```mysql
+(SELECT  dept FROM s)
+UNION 
+(SELECT  dept FROM t); -- 两个结果取交集即可 并集为UNION ALL
+```
+
+![image-20210511093056894](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511093056894.png)
+
+### 6.12 查询哪些学生所选的课程是由本院系的教师教的，列举学生姓名、课程名和教师名
+
+```mysql
+-- 根据学号查学生的系
+SELECT sno,sn,dept FROM s;
+
+-- 根据课程号查该课是由哪个系的老师教的
+SELECT c.cn,tt.dept,tt.tn FROM c JOIN 
+(SELECT tc.cno, t.tn, dept FROM t JOIN tc USING(tno)) tt USING(cno);
+```
+
+![image-20210511093405102](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511093405102.png)
+
+```mysql
+-- 根据院系相同来连接上述两个表
+SELECT a.sn, b.cn, b.tn,dept FROM (SELECT sno,sn,dept FROM s) a
+JOIN (SELECT c.cn,tt.dept,tt.tn FROM c JOIN 
+(SELECT tc.cno, t.tn, dept FROM t JOIN tc USING(tno)) tt USING(cno)) b USING(dept);
+```
+
+![image-20210511093503677](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511093503677.png)
+
+### 6.13 如果在同一个班上课就认定为同学，请列举所有可能的同学关系，至少包含三列：学生姓名、同学姓名、共同课程名
+
+```mysql
+-- 列出每个课都那些人选了 创建为视图
+CREATE OR REPLACE VIEW cn_cno AS
+(SELECT c.cn,sc.sno FROM sc JOIN c USING(cno) ORDER BY c.cn);
+-- 执行视图
+SELECT * FROM cn_cno;
+```
+
+![image-20210511093801231](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511093801231.png)
+
+```mysql
+-- 自连接查询所有同学关系
+SELECT cc1.cn,cc1.sno sno1, cc2.sno sno2  FROM cn_cno cc1 JOIN cn_cno cc2 USING(cn)
+WHERE cc1.sno <> cc2.sno ORDER BY cn,cc1.sno;
+```
+
+因为关系很长 此处只列举一部分
+
+![image-20210511094007139](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511094007139.png)
+
+```mysql
+-- 根据两个人的学号 显示他们的姓名 需要用自连接 如查s1和s2的姓名
+SELECT s1.sno,s1.sn,s2.sno,s2.sn FROM s s1 JOIN s s2 WHERE s1.sno = 's1' AND s2.sno = 's2';
+```
+
+![image-20210511094128657](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511094128657.png)
+
+```mysql
+-- 综合上述查询三表连接即可做出本题
+SELECT tt.cn,s1.sno,s1.sn,s2.sno,s2.sn FROM s s1 JOIN s s2 JOIN (SELECT cc1.cn,cc1.sno sno1, cc2.sno sno2  FROM cn_cno cc1 JOIN cn_cno cc2 USING(cn)
+WHERE cc1.sno <> cc2.sno ORDER BY cn,cc1.sno) tt 
+WHERE s1.sno = tt.sno1 AND s2.sno = tt.sno2 ORDER BY tt.cn,s1.sn,s2.sn;
+```
+
+![image-20210511094337667](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511094337667.png)
+
+### 6.14 由于课程有上下承接关系，请列举课程先后关系，必须先上的在前，后上的在后，无承接关系的不列举
+
+```mysql
+-- 通过赋值优先级 自定义排序即可
+SELECT * FROM c ORDER BY (
+CASE prevCno
+WHEN NULL THEN 0
+WHEN 'c6' THEN 3
+WHEN 'c5' THEN 2
+ELSE 1
+END
+) ASC;
+```
+
+![image-20210511094512280](https://pic-1256879969.cos.ap-nanjing.myqcloud.com/image-20210511094512280.png)
 
 ***
 

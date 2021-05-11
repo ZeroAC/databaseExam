@@ -106,7 +106,7 @@ WHERE cc1.sno <> cc2.sno ORDER BY cn,cc1.sno;
 -- 查询两个人姓名学号
 SELECT s1.sno,s1.sn,s2.sno,s2.sn FROM s s1 JOIN s s2 WHERE s1.sno = 's1' AND s2.sno = 's2';
 
-SELECT s1.sno,s1.sn,s2.sno,s2.sn,tt.cn FROM s s1 JOIN s s2 JOIN (SELECT cc1.cn,cc1.sno sno1, cc2.sno sno2  FROM cn_cno cc1 JOIN cn_cno cc2 USING(cn)
+SELECT tt.cn,s1.sno,s1.sn,s2.sno,s2.sn FROM s s1 JOIN s s2 JOIN (SELECT cc1.cn,cc1.sno sno1, cc2.sno sno2  FROM cn_cno cc1 JOIN cn_cno cc2 USING(cn)
 WHERE cc1.sno <> cc2.sno ORDER BY cn,cc1.sno) tt 
 WHERE s1.sno = tt.sno1 AND s2.sno = tt.sno2 ORDER BY tt.cn,s1.sn,s2.sn;
 
